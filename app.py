@@ -68,6 +68,7 @@ if "grid" not in st.session_state:
 
 # --- Header ---
 st.title("🍊 Visual Foraging Game")
+st.warning("📱 Rotate your phone to landscape mode!")
 st.write("Click **Start** to begin. Forage fruits to score! You have **10 seconds**.")
 
 st.markdown("""
