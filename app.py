@@ -4,8 +4,6 @@ import time
 import pandas as pd
 import os
 
-st.set_page_config(layout="wide")  # Use full screen width
-
 ROWS, COLS = 5, 10
 GAME_DURATION = 10
 LEADERBOARD_FILE = "leaderboard.csv"
@@ -98,39 +96,25 @@ if st.session_state.started:
     st.session_state.remaining_time = max(0, GAME_DURATION - elapsed)
     timer_placeholder.markdown(f"⏳ Time left: **{st.session_state.remaining_time}s**")
 
-# --- Game Grid (Responsive on Mobile) ---
+# --- Game Grid ---
 for i in range(ROWS):
-    cols = st.columns([1] * COLS)
+    cols = st.columns(COLS)
     for j in range(COLS):
         cell_id = f"{i}-{j}"
         fruit = st.session_state.grid[i][j]
         clicked_coords = [(r, c) for r, c, _ in st.session_state.click_path]
-        btn_label = fruit
         if (i, j) in clicked_coords:
             index = clicked_coords.index((i, j))
-            btn_label = f"{fruit}({index+1})"
-
-        button_style = f"""
-            <style>
-                div[data-testid=\"stButton\"] button[title=\"{cell_id}\"] {{
-                    font-size: 18px;
-                    padding: 4px 4px;
-                    min-height: 40px;
-                }}
-            </style>
-        """
-        st.markdown(button_style, unsafe_allow_html=True)
-
-        if (i, j) in clicked_coords:
-            cols[j].button(btn_label, key=cell_id, disabled=True)
+            display = f"{fruit}({index+1})"
+            cols[j].button(display, key=cell_id, disabled=True)
         else:
             if st.session_state.started and st.session_state.remaining_time > 0:
-                if cols[j].button(btn_label, key=cell_id):
+                if cols[j].button(fruit, key=cell_id):
                     st.session_state.click_path.append((i, j, fruit))
                     st.session_state.score += REWARDS[fruit]
                     st.rerun()
             else:
-                cols[j].button(btn_label, key=cell_id, disabled=True)
+                cols[j].button(fruit, key=cell_id, disabled=True)
 
 # --- Path and Score ---
 if st.session_state.started:
