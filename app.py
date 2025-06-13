@@ -3,42 +3,8 @@ import random
 import time
 import pandas as pd
 import os
-from streamlit.components.v1 import html
 
-# --- Get Screen Width Dynamically ---
-def get_screen_width():
-    width = st.session_state.get("screen_width", None)
-    if width is None:
-        html_code = """
-        <script>
-        const width = window.innerWidth || document.documentElement.clientWidth;
-        const streamlitDoc = window.parent.document;
-        const streamlitInputs = streamlitDoc.querySelectorAll("[data-testid='stMarkdownContainer']");
-        if (streamlitInputs.length > 0) {
-            const hiddenInput = document.createElement('input');
-            hiddenInput.setAttribute('type', 'hidden');
-            hiddenInput.setAttribute('name', 'screen_width');
-            hiddenInput.setAttribute('value', width);
-            streamlitInputs[0].appendChild(hiddenInput);
-        }
-        window.parent.postMessage({type: 'streamlit:setComponentValue', value: width}, '*');
-        </script>
-        """
-        html(html_code, height=0)
-        width = 400  # fallback default for mobile
-    return width
-
-screen_width = get_screen_width()
-
-# --- Adjust Grid Size Based on Screen Width ---
-if screen_width <= 400:
-    COLS = 4
-elif screen_width <= 700:
-    COLS = 6
-else:
-    COLS = 10
-
-ROWS = 5
+ROWS, COLS = 5, 10
 GAME_DURATION = 10
 LEADERBOARD_FILE = "leaderboard.csv"
 
