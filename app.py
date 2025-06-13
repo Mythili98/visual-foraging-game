@@ -66,6 +66,18 @@ if "grid" not in st.session_state:
     st.session_state.click_path = []
     st.session_state.leaderboard = load_leaderboard()
 
+# --- Custom CSS to make buttons small ---
+st.markdown("""
+    <style>
+        div[data-testid="column"] button {
+            font-size: 20px !important;
+            padding: 4px 6px !important;
+            height: auto !important;
+            line-height: 1 !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # --- Header ---
 st.title("🍊 Visual Foraging Game")
 st.write("Click **Start** to begin. Forage fruits to score! You have **10 seconds**.")
@@ -96,25 +108,44 @@ if st.session_state.started:
     st.session_state.remaining_time = max(0, GAME_DURATION - elapsed)
     timer_placeholder.markdown(f"⏳ Time left: **{st.session_state.remaining_time}s**")
 
-# --- Game Grid ---
+# --- Game Grid (Responsive with Emojis) ---
+half = COLS // 2
 for i in range(ROWS):
-    cols = st.columns(COLS)
-    for j in range(COLS):
+    first_half = st.columns(half)
+    second_half = st.columns(COLS - half)
+    for j in range(half):
         cell_id = f"{i}-{j}"
         fruit = st.session_state.grid[i][j]
         clicked_coords = [(r, c) for r, c, _ in st.session_state.click_path]
         if (i, j) in clicked_coords:
             index = clicked_coords.index((i, j))
             display = f"{fruit}({index+1})"
-            cols[j].button(display, key=cell_id, disabled=True)
+            first_half[j].button(display, key=cell_id, disabled=True)
         else:
             if st.session_state.started and st.session_state.remaining_time > 0:
-                if cols[j].button(fruit, key=cell_id):
+                if first_half[j].button(fruit, key=cell_id):
                     st.session_state.click_path.append((i, j, fruit))
                     st.session_state.score += REWARDS[fruit]
                     st.rerun()
             else:
-                cols[j].button(fruit, key=cell_id, disabled=True)
+                first_half[j].button(fruit, key=cell_id, disabled=True)
+
+    for j in range(half, COLS):
+        cell_id = f"{i}-{j}"
+        fruit = st.session_state.grid[i][j]
+        clicked_coords = [(r, c) for r, c, _ in st.session_state.click_path]
+        if (i, j) in clicked_coords:
+            index = clicked_coords.index((i, j))
+            display = f"{fruit}({index+1})"
+            second_half[j - half].button(display, key=cell_id, disabled=True)
+        else:
+            if st.session_state.started and st.session_state.remaining_time > 0:
+                if second_half[j - half].button(fruit, key=cell_id):
+                    st.session_state.click_path.append((i, j, fruit))
+                    st.session_state.score += REWARDS[fruit]
+                    st.rerun()
+            else:
+                second_half[j - half].button(fruit, key=cell_id, disabled=True)
 
 # --- Path and Score ---
 if st.session_state.started:
