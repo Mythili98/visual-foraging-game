@@ -12,21 +12,29 @@ def get_screen_width():
         html_code = """
         <script>
         const width = window.innerWidth || document.documentElement.clientWidth;
+        const streamlitDoc = window.parent.document;
+        const streamlitInputs = streamlitDoc.querySelectorAll("[data-testid='stMarkdownContainer']");
+        if (streamlitInputs.length > 0) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute('type', 'hidden');
+            hiddenInput.setAttribute('name', 'screen_width');
+            hiddenInput.setAttribute('value', width);
+            streamlitInputs[0].appendChild(hiddenInput);
+        }
         window.parent.postMessage({type: 'streamlit:setComponentValue', value: width}, '*');
         </script>
         """
-        width = st.slider("📱 Temporary width fallback", 300, 1500, 800)
-        st.markdown("⬅️ Adjust manually if auto width fails")
         html(html_code, height=0)
+        width = 400  # fallback default for mobile
     return width
 
 screen_width = get_screen_width()
 
 # --- Adjust Grid Size Based on Screen Width ---
 if screen_width <= 400:
-    COLS = 3
+    COLS = 4
 elif screen_width <= 700:
-    COLS = 5
+    COLS = 6
 else:
     COLS = 10
 
