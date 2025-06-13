@@ -3,8 +3,34 @@ import random
 import time
 import pandas as pd
 import os
+from streamlit.components.v1 import html
 
-ROWS, COLS = 5, 10
+# --- Get Screen Width Dynamically ---
+def get_screen_width():
+    width = st.session_state.get("screen_width", None)
+    if width is None:
+        html_code = """
+        <script>
+        const width = window.innerWidth || document.documentElement.clientWidth;
+        window.parent.postMessage({type: 'streamlit:setComponentValue', value: width}, '*');
+        </script>
+        """
+        width = st.slider("📱 Temporary width fallback", 300, 1500, 800)
+        st.markdown("⬅️ Adjust manually if auto width fails")
+        html(html_code, height=0)
+    return width
+
+screen_width = get_screen_width()
+
+# --- Adjust Grid Size Based on Screen Width ---
+if screen_width <= 400:
+    COLS = 3
+elif screen_width <= 700:
+    COLS = 5
+else:
+    COLS = 10
+
+ROWS = 5
 GAME_DURATION = 10
 LEADERBOARD_FILE = "leaderboard.csv"
 
